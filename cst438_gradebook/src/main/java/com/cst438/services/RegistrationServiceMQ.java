@@ -5,7 +5,9 @@ import org.springframework.amqp.core.Queue;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import com.cst438.domain.Course;
 import com.cst438.domain.CourseDTOG;
@@ -34,6 +36,11 @@ public class RegistrationServiceMQ extends RegistrationService {
 
 	@Autowired
 	Queue registrationQueue;
+	
+	RestTemplate restTemplate = new RestTemplate();
+	
+	@Value("${registration.url}") 
+	String registration_url;
 
 
 	// ----- end of configuration of message queue
@@ -45,6 +52,7 @@ public class RegistrationServiceMQ extends RegistrationService {
 	public void receive(EnrollmentDTO enrollmentDTO) {
 		
 		//TODO  complete this method in homework 4
+		System.out.println("REST registration service ");
 		
 	}
 
@@ -53,6 +61,9 @@ public class RegistrationServiceMQ extends RegistrationService {
 	public void sendFinalGrades(int course_id, CourseDTOG courseDTO) {
 		 
 		//TODO  complete this method in homework 4
+		System.out.println("sending final grade"+course_id+" "+courseDTO);
+		restTemplate.put(registration_url+"/course"+course_id, courseDTO);
+		System.out.println("After sending final grades");
 		
 	}
 

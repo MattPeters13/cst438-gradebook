@@ -2,6 +2,7 @@ package com.cst438.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.sql.Date;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.cst438.domain.Assignment;
 import com.cst438.domain.AssignmentListDTO;
+import com.cst438.domain.AssignmentListDTO.AssignmentDTO;
 import com.cst438.domain.AssignmentGrade;
 import com.cst438.domain.AssignmentGradeRepository;
 import com.cst438.domain.AssignmentRepository;
@@ -56,6 +58,61 @@ public class GradeBookController {
 		}
 		return result;
 	}
+	
+	@GetMapping("/assignment/{id}")
+	public AssignmentListDTO getAssignmentsById(@PathVariable("id") Integer assignmentId ) {
+		
+		String email = "dwisneski@csumb.edu";  // user name (should be instructor's email) 
+		
+		List<Assignment> assignments = assignmentRepository.findNeedGradingByEmail(email);
+		AssignmentListDTO result = new AssignmentListDTO();
+		for (Assignment a: assignments) {
+			if(assignmentId == a.getId()) {
+				result.assignments.add(new AssignmentListDTO.AssignmentDTO(a.getId(), a.getCourse().getCourse_id(), a.getName(), a.getDueDate().toString() , a.getCourse().getTitle()));
+			}
+			//result.assignments.add(new AssignmentListDTO.AssignmentDTO(a.getId(), a.getCourse().getCourse_id(), a.getName(), a.getDueDate().toString() , a.getCourse().getTitle()));
+		}
+		return result;
+	}
+	
+	
+	
+	//UPDATES NAME FOR ASSINGMENTS
+	@PutMapping("/changeAssignmentName/{id}")
+	@Transactional
+	public void updateAssignment (String name, @PathVariable("id") Integer assignmentId) {
+		Assignment assignment = assignmentRepository.findById(assignmentId).orElse(null);
+		if (assignment == null) {
+			throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Invalid assignment primary key. "+assignmentId);
+		}
+		
+		else {
+			assignment.setName(name);
+			assignmentRepository.save(assignment);
+		}
+		
+	}
+	
+	
+//	@PutMapping("/assignment/{id}")
+//	@Transactional
+//	public void UpdateAssignmentsName(@RequestBody AssignmentListDTO assignmentBody, @PathVariable("id") Integer assignmentId ) {
+//		
+//		String email = "dwisneski@csumb.edu";  // user name (should be instructor's email) 
+//	
+//		
+//		for (AssignmentListDTO.AssignmentDTO g : assignmentBody.assignments) {
+//			System.out.printf("%s\n", g.toString());
+//			Assignment ag = assignmentRepository.findById(g.assignmentId).orElse(null);
+//			if (ag == null) {
+//				throw new ResponseStatusException( HttpStatus.BAD_REQUEST, "Invalid grade primary key. "+g.assignmentId);
+//			}
+//			ag.setName(g.assignmentName);
+//			System.out.printf("%s\n", ag.toString());
+//			
+//			assignmentRepository.save(ag);
+//		}
+//	}
 	
 	@GetMapping("/gradebook/{id}")
 	public GradebookDTO getGradebook(@PathVariable("id") Integer assignmentId  ) {
@@ -155,6 +212,22 @@ public class GradeBookController {
 		}
 		
 	}
+	
+	//Adding an assingment
+	@PostMapping("/assignmentAdd")
+	@Transactional
+	public void insertAssignment(String name, Date dueDate, Integer id, Integer needsGrading) {
+		Assignment a = assignmentRepository.findById(id).orElse(null);
+		a = new Assignment();
+		a.setDueDate(dueDate);
+		a.setName(name);
+		a.setNeedsGrading(needsGrading);
+		assignmentRepository.save(a);
+		
+	}
+
+
+	
 	
 	private Assignment checkAssignment(int assignmentId, String email) {
 		// get assignment 

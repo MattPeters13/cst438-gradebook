@@ -52,6 +52,7 @@ public class GradebookDTO {
 	public String assignmentName;
 	public int assignmentId;
 	public List<Grade> grades = new ArrayList<>();
+	//public List<Assingments> assignments = new ArrayList<>();
 	
 	@Override
 	public String toString() {
