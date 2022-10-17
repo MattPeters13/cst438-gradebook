@@ -62,7 +62,7 @@ public class RegistrationServiceMQ extends RegistrationService {
 		 
 		//TODO  complete this method in homework 4
 		System.out.println("sending final grade"+course_id+" "+courseDTO);
-		restTemplate.put(registration_url+"/course"+course_id, courseDTO);
+		restTemplate.put(registration_url+"/course/"+course_id, courseDTO);
 		System.out.println("After sending final grades");
 		
 	}
